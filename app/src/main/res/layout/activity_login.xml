@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_login"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="kasper.pagh.keebin.LoginActivity"
+    android:background="#400d12">
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textEmailAddress"
+        android:background="#ffffff"
+        android:ems="10"
+        android:id="@+id/loginEmail"
+        android:layout_marginBottom="200dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal"
+        android:hint="Email"
+        android:textColor="#000000"
+        android:text="tester@email.dk" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:layout_alignTop="@+id/loginEmail"
+        android:layout_alignLeft="@+id/loginEmail"
+        android:layout_alignStart="@+id/loginEmail"
+        android:layout_marginTop="63dp"
+        android:id="@+id/loginPassword"
+        android:textColor="#000000"
+        android:background="#ffffff"
+        android:gravity="center_horizontal"
+        android:contentDescription="Password"
+        android:hint="Password"
+        android:text="123" />
+
+    <TextView
+        android:text="Password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#D6D7D7"
+        android:layout_marginBottom="28dp"
+        android:id="@+id/passwordText"
+        android:layout_alignBottom="@+id/loginPassword"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:text="Email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#D6D7D7"
+        android:id="@+id/textView"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:layout_alignBottom="@+id/loginEmail"
+        android:layout_marginBottom="30sp"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/logo_revised"
+        android:id="@+id/imageView"
+        android:layout_above="@+id/loginEmail"
+        android:layout_marginBottom="20sp"
+        android:layout_centerInParent="true"
+        />
+
+    <!--<TextView-->
+        <!--android:text="KEEBIN"-->
+        <!--android:textSize="25dp"-->
+        <!--android:textColor="#CDFFFF"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_above="@+id/textView"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_marginBottom="32dp"-->
+        <!--android:id="@+id/textView3"/>-->
+
+
+
+    <Button
+        android:text="Login"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/loginPassword"
+        android:layout_centerHorizontal="true"
+        android:backgroundTint="#ffffff"
+        android:layout_marginTop="28dp"
+        android:id="@+id/button_login"
+        android:onClick="login"
+        android:layout_marginBottom="0dp"/>
+
+
+
+    <Button
+        android:text="Ny bruger"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_new_user"
+        android:layout_below="@+id/button_login"
+        android:layout_centerHorizontal="true"
+        android:backgroundTint="#ffffff"
+        android:onClick="newUser"/>
+    <TextView
+        android:text=""
+        android:textSize="20dp"
+        android:textColor="#CDFFFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/loginPassword"
+        android:id="@+id/loginError"/>
+</RelativeLayout>
