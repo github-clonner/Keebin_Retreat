@@ -5,7 +5,7 @@ var orderId;
 var coffeeKindId;
 var quantity;
 
-var db = require('./DataBaseCreation.js');
+var db = require('./../HouseKeeping/DataBaseCreation.js');
 var sequelize = db.connect();
 var Order = db.Order();
 var OrderItem = db.OrderItem();

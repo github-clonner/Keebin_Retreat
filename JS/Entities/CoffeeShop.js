@@ -1,7 +1,7 @@
 /**
  * Created by mrlef on 10/18/2016.
  */
-var db = require('./DataBaseCreation.js');
+var db = require('./../HouseKeeping/DataBaseCreation.js');
 var sequelize = db.connect();
 var CoffeeShop = db.CoffeeShop();
 

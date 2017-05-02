@@ -4,7 +4,7 @@
 
 
 
-var db = require('./DataBaseFacade.js');
+var db = require("../Facade/DataBaseFacade");
 
 
 // the functions under this needs to be moved to db so calling db.new db.newLoyaltyCard('1', '3', '3') will result the same.

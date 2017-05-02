@@ -2,7 +2,7 @@
  * Created by dino on 07-02-2017.
  */
 
-var db = require('./DataBaseCreation.js');
+var db = require('./../HouseKeeping/DataBaseCreation.js');
 var conn = db.connect();
 var sequelize = db.connect();
 var user = db.User();

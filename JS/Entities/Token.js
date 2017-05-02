@@ -2,7 +2,7 @@
  * Created by mrlef on 10/25/2016.
  */
 
-var db = require('./DataBaseCreation.js');
+var db = require('./../HouseKeeping/DataBaseCreation.js');
 var jwt = require('jsonwebtoken');
 var auth = db.Authentication();
 var User = db.User();

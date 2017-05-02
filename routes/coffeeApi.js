@@ -3,7 +3,7 @@
  */
 var express = require('express');
 var router = express.Router();
-var facade = require("../JS/DataBaseFacade.js");
+var facade = require("../JS/Facade/DataBaseFacade");
 var bcrypt = require('bcryptjs');
 
 // virker

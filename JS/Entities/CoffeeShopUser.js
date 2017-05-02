@@ -3,11 +3,11 @@
  */
 //COFFEESHOPUSER STARTS HERE
 
-var db = require('./DataBaseCreation.js');
+var db = require('./../HouseKeeping/DataBaseCreation.js');
 var sequelize = db.connect();
 var CoffeeShop = db.CoffeeShop();
 var CoffeeShopUsers = db.CoffeeShopUsers();
-var facade = require('./DataBaseFacade.js')
+var facade = require("../Facade/DataBaseFacade")
 var user = db.User();
 var fuser = require('./User.js');
 var shop = require('./CoffeeShop.js');

@@ -1,7 +1,7 @@
 /**
  * Created by Dino on 10/19/2016.
  */
-var db = require('./DataBaseCreation.js');
+var db = require('./../HouseKeeping/DataBaseCreation.js');
 var conn = db.connect();
 var CoffeeBrand = db.CoffeeBrand();
 

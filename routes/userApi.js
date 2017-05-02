@@ -1,11 +1,11 @@
 var express = require('express');
 var router = express.Router();
-var facade = require('../JS/DataBaseFacade.js');
+var facade = require("../JS/Facade/DataBaseFacade");
 var bcrypt = require('bcryptjs');
-var Token = require('../JS/Token.js');
+var Token = require('../JS/Entities/Token.js');
 var jwt = require('jsonwebtoken');
-var Secret = require('../JS/Secret.js');
-var User = require('../JS/User.js');
+var Secret = require('../JS/Entities/Secret.js');
+var User = require('../JS/Entities/User.js');
 var cookie = require('cookie');
 var passport = require('passport');
 

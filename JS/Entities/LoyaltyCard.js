@@ -1,5 +1,4 @@
-
-var db = require('./DataBaseCreation.js');
+var db = require('./../HouseKeeping/DataBaseCreation.js');
 var conn = db.connect();
 
 var numberOfCoffeesBought;
@@ -9,24 +8,31 @@ var readyForFreeCoffee;
 var loyaltyCards = db.LoyaltyCards();
 
 
-function _deleteLoyaltyCard(ID, callback) {
+function _deleteLoyaltyCard(ID, callback)
+{
     var returnstatement = false;
-    loyaltyCards.find({where: {Id: ID}}).then(function (loyaltyCard) {
-        if (loyaltyCard !== null) {
-            loyaltyCard.destroy().then(function (data) {
+    loyaltyCards.find({where: {Id: ID}}).then(function (loyaltyCard)
+    {
+        if (loyaltyCard !== null)
+        {
+            loyaltyCard.destroy().then(function (data)
+            {
 
-                if (data !== null) {
+                if (data !== null)
+                {
                     console.log("Successfully deleted LoyaltyCard with ID - " + ID)
                     callback(true);
                     // successfully deleted the project
                 }
-                else {
+                else
+                {
                     console.log("Failed to delete LoyaltyCard with ID - " + ID)
                     callback(false);
                 }
             })
         }
-        else {
+        else
+        {
             console.log("No LoyaltyCard exists with the ID - " + ID)
             callback(false);
         }
@@ -34,7 +40,8 @@ function _deleteLoyaltyCard(ID, callback) {
 
 }
 
-function _createLoyaltyCard(brandId, userID, numberOfCoffeesBought, numberOfCoffeeNeeded, newLoyalcallback) {
+function _createLoyaltyCard(brandId, userID, numberOfCoffeesBought, numberOfCoffeeNeeded, newLoyalcallback)
+{
     this.brandName = brandId;
     this.numberOfCoffeesBought = numberOfCoffeesBought; //loyaltyCards bliver lavet når man første gang trykker "tilføj kop" til en branch.
     this.userID = userID;
@@ -42,38 +49,48 @@ function _createLoyaltyCard(brandId, userID, numberOfCoffeesBought, numberOfCoff
     var timesUsed = 1
 
 
-
     var returnstatement;
     console.log('vi er nu i create')
     console.log(brandId, userID, numberOfCoffeesBought)
-    var runIfLoyaltyCardFoundFalse = function (duplicatecheck, callback) {
+    var runIfLoyaltyCardFoundFalse = function (duplicatecheck, callback)
+    {
         // runIfRoleFoundFalse is the second function (the callback) - we feed RoleFound as a parameter and name is doesRoleExist
-        if (duplicatecheck == false) {
+        if (duplicatecheck == false)
+        {
             var freeCoffee = 0
-            while (numberOfCoffeesBought >= numberOfCoffeeNeeded){
+            while (numberOfCoffeesBought >= numberOfCoffeeNeeded)
+            {
                 freeCoffee += 1
                 numberOfCoffeesBought = numberOfCoffeesBought - numberOfCoffeeNeeded
             }
-            return conn.transaction(function (t) {
+            return conn.transaction(function (t)
+            {
                 return loyaltyCards.create({
                     numberOfCoffeesBought: numberOfCoffeesBought,
 
-                    userId: userID, brandName: brandId, isValid: true, numberOfFreeCoffeeAvailable: freeCoffee, timesUsed: timesUsed
+                    userId: userID,
+                    brandName: brandId,
+                    isValid: true,
+                    numberOfFreeCoffeeAvailable: freeCoffee,
+                    timesUsed: timesUsed
 
 
                 }, {transaction: t})
 
-            }).then(function (result) {
+            }).then(function (result)
+            {
 
                 console.log("Transaction has been committed - a new LoyaltyCard has been saved to the DB.");
                 returnstatement = true;
                 newLoyalcallback(returnstatement);
-            }).catch(function (err) {
+            }).catch(function (err)
+            {
                 console.log(err);
                 returnstatement = false;
                 newLoyalcallback(returnstatement);
             });
-        } else {
+        } else
+        {
             console.log("couldn't create new Loyalty Card ");
             returnstatement = false;
             console.log(newLoyalcallback)
@@ -84,16 +101,20 @@ function _createLoyaltyCard(brandId, userID, numberOfCoffeesBought, numberOfCoff
     }
 
 
-    var checkforduplicates = function (callback) {
+    var checkforduplicates = function (callback)
+    {
 
 
-        loyaltyCards.find({where: {brandName: brandId, userId: userID}}).then(function (data) { // we have run the callback inside the .then
+        loyaltyCards.find({where: {brandName: brandId, userId: userID}}).then(function (data)
+        { // we have run the callback inside the .then
 
             var Found;
-            if (data !== null) {
+            if (data !== null)
+            {
                 console.log("User found -  " + data.userId)
                 Found = true;
-            } else {
+            } else
+            {
                 Found = false;
             }
             callback(Found);
@@ -109,13 +130,17 @@ function _createLoyaltyCard(brandId, userID, numberOfCoffeesBought, numberOfCoff
 }
 
 
-function _getLoyaltyCard(ID, callback) {
-    loyaltyCards.find({where: {Id: ID}}).then(function (data) { // we have run the callback inside the .then
-        if (data !== null) {
+function _getLoyaltyCard(ID, callback)
+{
+    loyaltyCards.find({where: {Id: ID}}).then(function (data)
+    { // we have run the callback inside the .then
+        if (data !== null)
+        {
             console.log("LoyaltyCard found -  " + data.Id)
             callback(data);
 
-        } else {
+        } else
+        {
             console.log("Failed to find the LoyaltyCard with ID - " + ID);
             callback(false);
         }
@@ -124,47 +149,56 @@ function _getLoyaltyCard(ID, callback) {
     })
 
 }
-function _getLoyaltyCardByUserAndBrand(userID, brandName, callback) {
+function _getLoyaltyCardByUserAndBrand(userID, brandName, callback)
+{
 
 
-    loyaltyCards.find({where: {userId: userID, brandName: brandName}}).then(function (data) { // we have run the callback inside the .then
+    loyaltyCards.find({where: {userId: userID, brandName: brandName}}).then(function (data)
+    { // we have run the callback inside the .then
 
         console.log('loyaltyCard: ' + data)
-        if (data !== null) {
+        if (data !== null)
+        {
             console.log('vi er i done')
             console.log("LoyaltyCard found -  " + data.Id)
             callback(data);
 
-        } else {
+        } else
+        {
             // console.log("Failed to find the LoyaltyCard with ID - " + ID);
             callback(false);
         }
 
 
-    }, function (data) {
+    }, function (data)
+    {
         callback(false);
     })
 }
 
 
-
-function _getAllloyaltyCards(userId, callback) {
+function _getAllloyaltyCards(userId, callback)
+{
     var allloyaltyCards = [];
 
-    var log = function (inst) {
+    var log = function (inst)
+    {
 
         allloyaltyCards.push(inst.get());
     }
-console.log("fuckdisshit - " + userId);
+    console.log("fuckdisshit - " + userId);
     console.log("CoffeBrands is running.");
-    loyaltyCards.findAll({where: {userId: userId}}).then(function (data, err) {
-        if (data !== null) {
+    loyaltyCards.findAll({where: {userId: userId}}).then(function (data, err)
+    {
+        if (data !== null)
+        {
             console.log("her er data: " + data)
             console.log("CoffeBrands found.");
             data.forEach(log);
             callback(allloyaltyCards);
 
-        } else {
+        } else
+        {
             console.log(err);
             allloyaltyCards = false;
             console.log("could not find any CoffeBrands");
@@ -178,20 +212,25 @@ console.log("fuckdisshit - " + userId);
 
 };  // this one "gets" all CoffeeShops.
 
-function _addToNumberOfCoffeesBought(LoyaltyCardID, numberOfCoffeesBought, numberOfCoffeesNeededForFreeCoffee, callback) {
-    loyaltyCards.find({where: {Id: LoyaltyCardID}}).then(function (data, err) {
+function _addToNumberOfCoffeesBought(LoyaltyCardID, numberOfCoffeesBought, numberOfCoffeesNeededForFreeCoffee, callback)
+{
+    loyaltyCards.find({where: {Id: LoyaltyCardID}}).then(function (data, err)
+    {
         var numberOfCoffeesBoughtSoFar
         var freeCoffee = data.numberOfFreeCoffeeAvailable
-        if (data === null) {
+        if (data === null)
+        {
             console.log("something went wrong with editing " + LoyaltyCardID + " and gave an error - " + err);
             callback(false);
         }
-        else {
+        else
+        {
             console.log("Trying to update... " + LoyaltyCardID)
             console.log('vi er i _addToNumberOfCoffeesBought og data er:' + LoyaltyCardID, numberOfCoffeesBought)
 
             numberOfCoffeesBoughtSoFar = "" + (parseInt(data.numberOfCoffeesBought) + parseInt(numberOfCoffeesBought));
-            while (numberOfCoffeesBoughtSoFar >= numberOfCoffeesNeededForFreeCoffee){
+            while (numberOfCoffeesBoughtSoFar >= numberOfCoffeesNeededForFreeCoffee)
+            {
                 freeCoffee += 1
                 numberOfCoffeesBoughtSoFar = numberOfCoffeesBoughtSoFar - numberOfCoffeesNeededForFreeCoffee
             }
@@ -199,7 +238,8 @@ function _addToNumberOfCoffeesBought(LoyaltyCardID, numberOfCoffeesBought, numbe
                 numberOfCoffeesBought: numberOfCoffeesBoughtSoFar,
                 timesUsed: ++data.timesUsed,
                 numberOfFreeCoffeeAvailable: freeCoffee
-            }).then(function (result) {
+            }).then(function (result)
+            {
                 console.log("LoyaltyCard " + LoyaltyCardID + " has been updated!");
                 callback(true);
             })
@@ -208,22 +248,27 @@ function _addToNumberOfCoffeesBought(LoyaltyCardID, numberOfCoffeesBought, numbe
 }
 
 
-function _putLoyaltyCard(LoyaltyCardID, brandName, userID, numberOfCoffeesBought, callback) {
-    loyaltyCards.find({where: {Id: LoyaltyCardID}}).then(function (data, err) {
-        if (data === null) {
+function _putLoyaltyCard(LoyaltyCardID, brandName, userID, numberOfCoffeesBought, callback)
+{
+    loyaltyCards.find({where: {Id: LoyaltyCardID}}).then(function (data, err)
+    {
+        if (data === null)
+        {
 
             console.log("something went wrong with editting " + LoyaltyCardID + " and gave an error - " + err);
             callback(false);
 
         }
-        else {
+        else
+        {
             console.log("Trying to update... " + LoyaltyCardID)
             // data.updateatt = update given attributes in the object
             // attribute : attributevalue to edit to.
             data.updateAttributes({
                 numberOfCoffeesBought: numberOfCoffeesBought,
                 userId: userID, brandName: brandName
-            }).then(function (result) {
+            }).then(function (result)
+            {
                 console.log("LoyaltyCard " + LoyaltyCardID + " has been updated!");
                 callback(result);
             })
@@ -231,24 +276,31 @@ function _putLoyaltyCard(LoyaltyCardID, brandName, userID, numberOfCoffeesBought
     });
 }
 
-function _putLoyaltyCardRedeem(LoyaltyCardID, userID, numberOfCoffeeRedeems, callback) {
-    loyaltyCards.find({where: {Id: LoyaltyCardID}}).then(function (data, err) {
-        if (data === null) {
+function _putLoyaltyCardRedeem(LoyaltyCardID, userID, numberOfCoffeeRedeems, callback)
+{
+    loyaltyCards.find({where: {Id: LoyaltyCardID}}).then(function (data, err)
+    {
+        if (data === null)
+        {
             console.log("something went wrong with editting " + LoyaltyCardID + " and gave an error - " + err);
             callback(false);
         }
-        else {
+        else
+        {
             console.log("Trying to update... " + LoyaltyCardID)
             var numberOfRedeemsAvailable = data.numberOfFreeCoffeeAvailable
-            if ((numberOfRedeemsAvailable - numberOfCoffeeRedeems) >= 0) {
+            if ((numberOfRedeemsAvailable - numberOfCoffeeRedeems) >= 0)
+            {
                 numberOfRedeemsAvailable = numberOfRedeemsAvailable - numberOfCoffeeRedeems
                 data.updateAttributes({
                     numberOfFreeCoffeeAvailable: numberOfRedeemsAvailable
-                }).then(function (result) {
+                }).then(function (result)
+                {
                     console.log("LoyaltyCard " + LoyaltyCardID + " has been updated with numberOfRedeems!");
                     callback(result);
                 })
-            } else {
+            } else
+            {
                 console.log("bruger med userId: " + userID + " har ikke nok coffeeAvailable som han/hun forsøger at redeem")
                 callback(false)
             }

@@ -3,7 +3,7 @@
  */
 
 var uuid = require('node-uuid');
-var db = require('./DataBaseCreation.js');
+var db = require('./../HouseKeeping/DataBaseCreation.js');
 var Auth = db.Authentication();
 var sequelize = db.connect();
 
