@@ -291,17 +291,18 @@ function _getAllRoles(callback)
 
 function _createUser(FirstName, LastName, Email, Role, Birthday, Sex, password, callback) // this creates a user
 {
-    console.log("createUser1")
     validate.valUser(Email, password, Role, function (data)
     {
-        if (data)
+        if (data === true)
         {
-            console.log("create user 2")
             User.createUser(FirstName, LastName, Email, Role, Birthday, Sex, password, function (data2)
             {
                 callback(data2)
             })
-        } else callback(false)
+        } else
+        {
+            callback(false)
+        }
     })
 }
 
@@ -314,6 +315,7 @@ function _putUser(oldpassword, userEmail, firstName, lastName, email, role, birt
     User.putUser(oldpassword, userEmail, firstName, lastName, email, role, birthday, sex, password, function (data2)
     {
         callback(data2)
+
     })
 
 
@@ -344,6 +346,7 @@ function _getUser(userEmail, callback)
         {
             User.getUser(userEmail, function (data2)
             {
+                console.log("data: " + data2);
                 callback(data2)
             })
 

@@ -31,21 +31,22 @@ function _newUser(firstName, lastName, email, role, birthday, sex, password)
 
 function _createUser(firstName, lastName, email, role, birthday, sex, password, callback) // this creates a user
 {
+    console.log("i user-user og email " + email);
     var userCreated = false;
 
-    console.log("createUser is running. ")
     User.find({where: {Email: email}}).then(function (data)
     { // we have run the callback inside the .then
+        console.log("i User.FIND her er data: " + data);
         if (data !== null)
         {
-            console.log("user found - email exists already - " + data.email)
+            console.log("User findes allerede");
             callback(userCreated);
         } else
         {
+            console.log("User findes IKKE");
             return sequelize.transaction(function (t)
             {
-
-                // chain all your queries here. make sure you return them.
+               // chain all your queries here. make sure you return them.
                 return User.create({
                     firstName: firstName,
                     lastName: lastName,
@@ -59,6 +60,7 @@ function _createUser(firstName, lastName, email, role, birthday, sex, password, 
 
             }).then(function (result)
             {
+                console.log("her er res: " + result);
                 console.log("Transaction has been committed - user has been saved to the DB");
                 userCreated = true;
                 callback(userCreated);
@@ -67,7 +69,7 @@ function _createUser(firstName, lastName, email, role, birthday, sex, password, 
                 // result is whatever the result of the promise chain returned to the transaction callback
             }).catch(function (err)
             {
-                console.log(err);
+                console.log("ERR: " + err);
                 callback(userCreated);
                 // Transaction has been rolled back
                 // err is whatever rejected the promise chain returned to the transaction callback
@@ -75,11 +77,6 @@ function _createUser(firstName, lastName, email, role, birthday, sex, password, 
         }
     })
 }
-var lol;
-_putUser("12345", "ab@gmail.com", "johnanas", "", "", "", "", "m", "123", function (LOL)
-{
-    console.log(LOL)
-})
 
 
 function _putUser(oldpassword, userEmail, firstName, lastName, email, role, birthday, sex, password, callback)
@@ -93,10 +90,8 @@ function _putUser(oldpassword, userEmail, firstName, lastName, email, role, birt
         {
 
             var passwordmatches = bcrypt.compareSync(oldpassword, data.password);
-
             if (passwordmatches)
             {
-
                 if (data !== null)
                 {
                     console.log("user found - ready to edit");
@@ -163,7 +158,7 @@ function _putUser(oldpassword, userEmail, firstName, lastName, email, role, birt
                         // result is whatever the result of the promise chain returned to the transaction callback
                     }).catch(function (err)
                     {
-                        console.log(err);
+                        console.log("error i put: " + err);
                         callback(userUpdated);
                         // Transaction has been rolled back
                         // err is whatever rejected the promise chain returned to the transaction callback
@@ -258,14 +253,9 @@ function _getUser(userEmail, callback)
                 console.log(err);
                 console.log("could not find: " + userEmail);
                 callback(userFound3);
-
-
             }
-
-
         }
     )
-
 
 }; // this one "gets" a user based on email.
 

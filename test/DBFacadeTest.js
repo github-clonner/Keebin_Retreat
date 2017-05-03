@@ -1,103 +1,79 @@
 /**
  * Created by kaspe on 02-05-2017.
  */
-
 let expect = require("chai").expect;
 let mocha = require("mocha");
 let facade = require("../JS/Facade/DataBaseFacade");
-let testUser;
+let bcrypt = require("bcryptjs");
 
-let addTestUser = function ()
+
+describe("Tests the most commonly used user related DB facade functions (essentially just CRUD)", function ()
 {
-    return facade.createUser("test", "test", "testing@testing.test", 1, "09/09/2010", "male", "123", function (data)
+    var salt = bcrypt.genSaltSync(12);
+    let testUser =
+        {
+            firstName: "test",
+            lastName: "test",
+            email: "testing@testing.test",
+            role: 1,
+            birthday: "09/09/2010",
+            sex: "male",
+            password: bcrypt.hashSync("123", salt)
+        };
+    describe("Tests the createUser function", function ()
     {
-        if (data === false)
+        it("creates the user, and returns true", function (done)
         {
-            return "Error";
-        }
-        else
-        {
-            console.log("testUser lavet, her er den: " + data);
-            testUser = data;
-            return data;
-        }
-    });
-};
-
-
-let setupTest = function()
-{
-    addTestUser();
-};
-
-
-describe("Test of the most used User-related facade functions", function ()
-{
-    /////////////////////////////////////////////////////
-    describe("Adds a new test user with the _createUser function of the Facade", function ()
-    {
-        it("Adds the user with email: testing@testing.test", function ()
-        {
-            addTestUser();
-            expect(addTestUser()).to.equal();
-        });
-    });
-
-    /////////////////////////////////////////////////////
-    describe("GetUser test", function ()
-    {
-        it("Finds the user with email: tester@email.dk", function ()
-        {
-            facade.getUser("tester@email.dk", (data) =>
+            facade.createUser(testUser.firstName, testUser.lastName, testUser.email, testUser.role, testUser.birthday, testUser.sex, testUser.password, function (data)
             {
-                expect(data).to.equal(testUser);
+                expect(data).to.equal(true);
+                done();
             });
         });
     });
-
-    describe("test of editUser", function ()
+    describe("Tests the getUser function", function ()
     {
-        let editedUser =
-            {
-                firstName: "testerÆndret",
-                lastName: "testerÆndret",
-                email: "testing@testing.test",
-                role: 1,
-                birthday: "01/01/2010",
-                sex: "female"
-            };
-
-
-        facade.putUser("123", "testing@testing.test", "testerÆndret", "testerÆndret", "nytester@email.test", 2, "01/01/2010", "female", "1234", function (data)
+        it("Finds the user with the email: testing@testing.test, and returns it", function (done)
         {
-            console.log("Edit user. Original usr: " + testUser + " og den nye: " + data);
-            expect(data.firstName).to.equal("testerÆndret");
-            expect(data.lastName).to.equal("testerÆndret");
-            expect(data.email).to.equal("testing@testing.test");
-            expect(data.role).to.equal(1);
-            expect(data.birthday).to.equal("01/01/2010");
-            expect(data.sex).to.equal("female");
+            facade.getUser("testing@testing.test", function (data)
+            {
+                expect(data.dataValues.firstName).to.equal(testUser.firstName);
+                expect(data.dataValues.lastName).to.equal(testUser.lastName);
+                expect(data.dataValues.email).to.equal(testUser.email);
+                expect(data.dataValues.roleId).to.equal(testUser.role);
+                expect(data.dataValues.sex).to.equal(testUser.sex);
+                done();
+            });
         });
     });
-/////////////////////////////////////////////////////
-//     describe("Hex to RGB conversion", function ()
-//     {
-//         it("converts the basic colors", function ()
-//         {
-//             var red = converter.hexToRgb("ff0000");
-//             var green = converter.hexToRgb("00ff00");
-//             var blue = converter.hexToRgb("0000ff");
-//
-//             expect(red).to.deep.equal([255, 0, 0]);
-//             expect(green).to.deep.equal([0, 255, 0]);
-//             expect(blue).to.deep.equal([0, 0, 255]);
-//         });
-//     });
-/////////////////////////////////////////////////////
+    describe("Tests the putUser (edit) function", function ()
+    {
+        it("Finds the user with the email: testing@testing.test, and updates it with new data", function (done)
+        {
+            facade.putUser("123", "testing@testing.test", "testerÆndret", "testerÆndret", "nytester@email.test", 1, "01/01/2010", "female", "1234", function (data)
+            {
+                let editedUser = data.dataValues;
+                expect(editedUser.firstName).to.equal("testerÆndret");
+                expect(editedUser.lastName).to.equal("testerÆndret");
+                expect(editedUser.email).to.equal("nytester@email.test");
+                expect(editedUser.roleId).to.equal(1);
+                expect(editedUser.sex).to.equal("female");
+                done();
+            });
+        });
+    });
+    describe("Tests the deleteUser function", function ()
+    {
+        it("Finds and deletes the user", function (done)
+        {
+            facade.deleteUser("nytester@email.test", function (data)
+            {
+                expect(data).to.equal(true);
+                done();
+            });
 
-
-/////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////
+        });
+    });
 });
+
+
