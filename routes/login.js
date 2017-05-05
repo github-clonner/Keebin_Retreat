@@ -66,7 +66,8 @@ console.log("hej fra update")
 
 router.post("/user/new", function (req, res, next)
     {
-        console.log("vi er i new user")
+        console.log("vi er i new user, her er data: " + req.body.firstName);
+
         var salt = bcrypt.genSaltSync(12);
         var pw = bcrypt.hashSync(req.body.password, salt);
         var userToSave =
@@ -81,7 +82,7 @@ router.post("/user/new", function (req, res, next)
             }
         facade.createUser(userToSave.firstName, userToSave.lastName, userToSave.email, userToSave.role, userToSave.birthday, userToSave.sex, userToSave.password, function (status)
             {
-
+                console.log("Når facade, her er status: " + status + " og pw: "+ userToSave.password);
                 if (status === true)
                 {
                     var tokens = {};
