@@ -293,6 +293,7 @@ function _createUser(FirstName, LastName, Email, Role, Birthday, Sex, password, 
 {
     validate.valUser(Email, password, Role, function (data)
     {
+        console.log("her er val data: " + data);
         if (data === true)
         {
             User.createUser(FirstName, LastName, Email, Role, Birthday, Sex, password, function (data2)
