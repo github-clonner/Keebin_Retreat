@@ -31,6 +31,7 @@ describe("Tests the most commonly used user related DB facade functions (essenti
             });
         });
     });
+
     describe("Tests the getUser function", function ()
     {
         it("Finds the user with the email: testing@testing.test, and returns it", function (done)
@@ -46,6 +47,7 @@ describe("Tests the most commonly used user related DB facade functions (essenti
             });
         });
     });
+
     describe("Tests the putUser (edit) function", function ()
     {
         it("Finds the user with the email: testing@testing.test, and updates it with new data", function (done)
@@ -62,6 +64,7 @@ describe("Tests the most commonly used user related DB facade functions (essenti
             });
         });
     });
+
     describe("Tests the deleteUser function", function ()
     {
         it("Finds and deletes the user", function (done)
@@ -117,7 +120,8 @@ describe("Test af CoffeeBrand og CoffeeShop", function ()
             });
         });
     });
-    //
+
+
     describe("Test af createShop", function ()
     {
         it("Laver en ny shop, med det nye brand (ovenstående)", function (done)
