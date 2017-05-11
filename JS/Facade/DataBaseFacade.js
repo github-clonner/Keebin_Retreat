@@ -17,7 +17,7 @@ var validate = require('./../validation/Validator');
 var klippekort = require('./../Entities/PrePaidCoffeeCard.js')
 var premium = require('./../Entities/Premium')
 var dbVersion = require('./../HouseKeeping/DatabaseVersion.js')
-
+var stripeCustomer = require('./../Entities/stripeCustomer')
 
 var sequelize = db.connect(); // Establishing connection to the MySQL database schema called keebin
 
@@ -842,6 +842,27 @@ function _getDatabaseVersion(callback)
     })
 }
 
+function _createStripeCustomerAndSubscribeToPremium(userEmail, callback)
+{
+    //create Stripe customer
+    stripeCustomer.createStripeCustomer(userEmail, function (createdCustomer) {
+        if(createdCustomer) {
+            //add Stripe Customer ID to User.stripeCustomerId
+            User.putGiveUserStripeCustomerID(createdCustomer.email, createdCustomer.id, function (data) {
+                if (data) {
+                    //subscribe
+                    stripeCustomer.subscribeCustomerToPlan(createdCustomer.id, function (data) {
+                        //returns true or false
+                        callback(data)
+                    })
+                }
+            })
+        } else {
+            callback(false)
+        }
+    })
+}
+
 
 module.exports = {
     createUser: _createUser,
@@ -893,5 +914,6 @@ module.exports = {
     getPremiumSubscription: _getPremiumSubscription,
     getAllPremiumSubscriptions: _getAllPremiumSubscriptions,
     putLoyaltyCardRedeem: _putLoyaltyCardRedeem,
-    getDatabaseVersion: _getDatabaseVersion
+    getDatabaseVersion: _getDatabaseVersion,
+    createStripeCustomerAndSubscribeToPremium: _createStripeCustomerAndSubscribeToPremium
 }; // Export Module

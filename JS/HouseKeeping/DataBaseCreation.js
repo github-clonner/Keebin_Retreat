@@ -61,7 +61,12 @@ var user = sequelize.define('user', {
     refreshToken: {
         type: Sequelize.STRING,
         Validate: {notNull: false}
+    },
+    stripeCustomerId: {
+        type: Sequelize.STRING,
+        Validate: {notNull: false}
     }
+
 
 }, {
     freezeTableName: true, // Model tableName will be the same as the model name

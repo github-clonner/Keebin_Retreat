@@ -415,21 +415,24 @@ router.post("/user/logout", function (req, res)
 
 //Steffen userLogin, userAuth og userLogout slut
 
-router.post("/createPremiumSubscription", function (req, res)
-{
-    facade.createNewPremiumSubscription(req.decoded.data.sub, function (status)
-        {
-            if (status !== false)
-            {
-                res.writeHead(200, {"accessToken": req.headers.accessToken});
-                res.status(200).send();
-            }
-            else
-            {
-                res.status(500).send();
-            }
+router.post("/createPremiumSubscription", function (req, res) {
+    facade.createStripeCustomerAndSubscribeToPremium(req.decoded.data.email, function (data) {
+        if (data) {
+            facade.createNewPremiumSubscription(req.decoded.data.sub, function (status) {
+                    if (status !== false) {
+
+                        res.writeHead(200, {"accessToken": req.headers.accessToken});
+                        res.status(200).send();
+                    }
+                    else {
+                        res.status(500).send();
+                    }
+                }
+            )
+        } else {
+            res.status(500).send();
         }
-    );
+    })
 });
 
 router.delete("/deletePremiumSubscription", function (req, res)
@@ -542,6 +545,8 @@ router.get("/getDBVersion", function (req, res)
         }
     )
 });
+
+
 
 
 module.exports = router;

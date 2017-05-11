@@ -399,6 +399,48 @@ function _logoutUser(userEmail, callback)
 }; // this logs out user by deleting refreshToken.
 
 
+function _putGiveUserStripeCustomerID(userEmail, customerId, callback)
+{
+    console.log("_putGiveUserStripeCustomerID is running. Finding: " + userEmail);
+    User.find({where: {Email: userEmail}}).then(function (data, err)
+        {
+                 if (data !== null)
+                {
+                    console.log("user found - ready to give StripeCustomerId");
+
+                    return sequelize.transaction(function (t)
+                    {
+                        // chain all your queries here. make sure you return them.
+                        return data.updateAttributes({
+                            stripeCustomerId: customerId
+
+                        }, {transaction: t})
+
+                    }).then(function (result)
+                    {
+                        console.log("Transaction has been committed - user with email: " + result.email + ", has been updated and saved to the DB");
+                        callback(true);
+
+                        // Transaction has been committed
+                        // result is whatever the result of the promise chain returned to the transaction callback
+                    }).catch(function (err)
+                    {
+                        console.log("error i _putGiveUserStripeCustomerID: " + err);
+                        callback(false);
+                        // Transaction has been rolled back
+                        // err is whatever rejected the promise chain returned to the transaction callback
+                    });
+                } else
+                {
+                    console.log(err);
+                    console.log("could not find: " + editUser.email);
+                    callback(false)
+                }
+        }
+    )
+};
+
+
 module.exports = {
     createNewUserObject: _newUser,
     getUserById: _getUserById,
@@ -408,7 +450,8 @@ module.exports = {
     getUser: _getUser,
     getAllUsers: _getAllUsers,
     getUserByRefreshToken: _getUserByRefreshToken,
-    logoutUser: _logoutUser
+    logoutUser: _logoutUser,
+    putGiveUserStripeCustomerID: _putGiveUserStripeCustomerID
 }; // Export Module
 
 
