@@ -407,13 +407,11 @@ function _putGiveUserStripeCustomerID(userEmail, customerId, callback)
                  if (data !== null)
                 {
                     console.log("user found - ready to give StripeCustomerId");
-
                     return sequelize.transaction(function (t)
                     {
                         // chain all your queries here. make sure you return them.
                         return data.updateAttributes({
                             stripeCustomerId: customerId
-
                         }, {transaction: t})
 
                     }).then(function (result)

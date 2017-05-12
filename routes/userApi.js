@@ -415,20 +415,28 @@ router.post("/user/logout", function (req, res)
 
 //Steffen userLogin, userAuth og userLogout slut
 
-router.post("/createPremiumSubscription", function (req, res) {
-    facade.createStripeCustomerAndSubscribeToPremium(req.decoded.data.email, function (data) {
-        if (data) {
-            facade.createNewPremiumSubscription(req.decoded.data.sub, function (status) {
-                    if (status !== false) {
 
-                        res.writeHead(200, {"accessToken": req.headers.accessToken});
-                        res.status(200).send();
-                    }
-                    else {
-                        res.status(500).send();
-                    }
+router.post("/createPremiumSubscription", function (req, res) {
+    //If user does not have Stripe Customer ID it will be created first. 
+    facade.createStripeCustomer(req.decoded.data.email, function (data) {
+        if (data) {
+            facade.subscribeStripeCustomerToPremium(data.customerId, function (data) {
+                if(data){
+                    facade.createNewPremiumSubscription(req.decoded.data.sub, function (status) {
+                        if (status !== false) {
+                            res.writeHead(200, {"accessToken": req.headers.accessToken});
+                            res.status(200).send();
+                        }
+                        else {
+                            console.log("ERROR in DB: Customer with id: "+ req.decoded.data.sub +
+                                " subscribed to Premium Stripe Plan but could not be set to Premium in DB.")
+                            res.status(500).send();
+                        }
+                    })
+                } else {
+                    res.status(500).send();
                 }
-            )
+            })
         } else {
             res.status(500).send();
         }

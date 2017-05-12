@@ -842,23 +842,28 @@ function _getDatabaseVersion(callback)
     })
 }
 
-function _createStripeCustomerAndSubscribeToPremium(userEmail, callback)
+function _createStripeCustomer(userEmail, callback)
 {
     //create Stripe customer
     stripeCustomer.createStripeCustomer(userEmail, function (createdCustomer) {
         if(createdCustomer) {
             //add Stripe Customer ID to User.stripeCustomerId
-            User.putGiveUserStripeCustomerID(createdCustomer.email, createdCustomer.id, function (data) {
-                if (data) {
-                    //subscribe
-                    stripeCustomer.subscribeCustomerToPlan(createdCustomer.id, function (data) {
-                        //returns true or false
-                        callback(data)
-                    })
-                }
-            })
+            callback(createdCustomer)
         } else {
+            console.log("fejl i createStripeCustomer")
             callback(false)
+        }
+    })
+}
+
+function _subscribeStripeCustomerToPremium(customerId, callback) {
+    stripeCustomer.subscribeCustomerToPlan(customerId, function (data) {
+        if(data){
+            callback(data)
+        } else {
+            console.log("Could not subscribe customer to Premium Plan")
+            callback(data)
+
         }
     })
 }
@@ -915,5 +920,6 @@ module.exports = {
     getAllPremiumSubscriptions: _getAllPremiumSubscriptions,
     putLoyaltyCardRedeem: _putLoyaltyCardRedeem,
     getDatabaseVersion: _getDatabaseVersion,
-    createStripeCustomerAndSubscribeToPremium: _createStripeCustomerAndSubscribeToPremium
+    createStripeCustomer: _createStripeCustomer,
+    subscribeStripeCustomerToPremium: _subscribeStripeCustomerToPremium
 }; // Export Module
