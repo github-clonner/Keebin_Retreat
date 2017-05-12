@@ -888,6 +888,22 @@ function _subscribeStripeCustomerToPremium(customerId, callback) {
     })
 }
 
+function _addACardToCustomer(userEmail, token, callback) {
+    User.getUser(userEmail, function (user) {
+        if (user){
+            stripeCustomer.addCardToCustomer(user.stripeCustomerId, token, function (data2) {
+                if(data2){
+                    callback(true)
+                } else {
+                    callback(false)
+                }
+            })
+        } else {
+            callback(false)
+        }
+    })
+}
+
 
 module.exports = {
     createUser: _createUser,
@@ -941,5 +957,6 @@ module.exports = {
     putLoyaltyCardRedeem: _putLoyaltyCardRedeem,
     getDatabaseVersion: _getDatabaseVersion,
     createStripeCustomer: _createStripeCustomer,
-    subscribeStripeCustomerToPremium: _subscribeStripeCustomerToPremium
+    subscribeStripeCustomerToPremium: _subscribeStripeCustomerToPremium,
+    addACardToCustomer: _addACardToCustomer
 }; // Export Module

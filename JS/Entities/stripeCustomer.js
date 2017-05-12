@@ -94,17 +94,28 @@ function _unsubscribeFromPremium(userId, callback) {
             )
         }
     })
+}
 
-
-
-
+function _addCardToCustomer(customerId, token, callback) {
+    stripe.customers.update(customerId, {
+        description: "Premium Customer",
+        source: token
+    }, function(err, customer) {
+        // asynchronously called
+        if (err){
+            callback(false)
+        } else {
+            callback(true)
+        }
+    })
 }
 
 module.exports = {
     createStripeCustomer: _createStripeCustomer,
     subscribeCustomerToPlan: _subscribeCustomerToPlan,
     deleteStripeCustomer: _deleteStripeCustomer,
-    unsubscribeFromPremium: _unsubscribeFromPremium
+    unsubscribeFromPremium: _unsubscribeFromPremium,
+    addCardToCustomer: _addCardToCustomer
 };
 
 

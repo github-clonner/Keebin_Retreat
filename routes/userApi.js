@@ -554,6 +554,23 @@ router.get("/getDBVersion", function (req, res)
     )
 });
 
+router.post("/addCardToUser", function (req, res)
+{
+    facade.addACardToCustomer(req.decoded.data.email, req.body.token, function (data) {
+        if (data){
+            res.writeHead(200, {"accessToken": req.headers.accessToken});
+            res.write(JSON.stringify(status));
+            res.status(200).send();
+        }
+        else
+        {
+            res.status(500).send();
+        }
+    })
+
+
+});
+
 
 
 
