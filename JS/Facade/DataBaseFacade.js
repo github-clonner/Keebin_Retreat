@@ -298,7 +298,23 @@ function _createUser(FirstName, LastName, Email, Role, Birthday, Sex, password, 
         {
             User.createUser(FirstName, LastName, Email, Role, Birthday, Sex, password, function (data2)
             {
-                callback(data2)
+                if (data2){
+                    stripeCustomer.createStripeCustomer(data2.email, function (customer) {
+                        if (customer){
+                            User.putGiveUserStripeCustomerID(customer.email, customer.id, function (data3) {
+                                if (data3){
+                                    callback(true)
+                                }
+                            })
+                        } else {
+                            console.log("something went wrong with createStripeCustomer, but user has been created.")
+                            callback(true)
+                        }
+                    })
+
+                } else {
+                    callback(false)
+                }
             })
         } else
         {
@@ -765,7 +781,11 @@ function _deletePremiumSubscription(userId, callback)
         {
             premium.deletePremiumSubscription(userId, function (data)
             {
-                callback(data)
+                if (data){
+                    stripeCustomer.unsubscribeFromPremium(userId, function (data) {
+                        callback(data)
+                    })
+                }
             })
         } else
         {

@@ -11,46 +11,16 @@ var User = require('./../Entities/User.js'); // Requires
 
 function _createStripeCustomer(userEmail, callback) {
     console.log("CreateStripeCustomer is running.")
-    console.log("vi søger på userEmail: " + userEmail)
-    User.getUser(userEmail, function (data) {
-        if (data.stripeCustomerId != null) {
-            console.log("Customer already has a StripeId.")
-            stripe.customers.retrieve(
-                data.stripeCustomerId,
-                function(err, customer) {
-                    // asynchronously called
-                    if (err){
-                        console.log("Error in retrieving customer from Stripe.")
-                        callback(false)
-                    } else {
-                        callback(customer)
-                    }
-                }
-            )
+    //check if user already has a stripe CustomerId
+    var customer = stripe.customers.create({
+        email: userEmail,
+    }, function (err, customer) {
+        // asynchronously called
+        if (err) {
+            console.log("Something went wrong with creating CustomerId")
+            callback(false)
         } else {
-            var customer = stripe.customers.create({
-                email: userEmail,
-            }, function (err, customer) {
-                // asynchronously called
-                if (err) {
-                    console.log("error i createStripeCustomer: " + err)
-                    callback(false)
-                } else {
-                    User.putGiveUserStripeCustomerID(customer.email, customer.id, function (data) {
-                        let callbackData = {}
-                        if (data) {
-                            //subscribe
-                            callback(customer)
-                        } else {
-                            console.log("Error: fejl i createStripeCustomer. Deleting StripeCutomer")
-                            stripeCustomer.deleteStripeCustomer(customer.id, function (data) {
-                                console.log("deletion of stripeCustomer: " + data)
-                                callback(false)
-                            })
-                        }
-                    })
-                }
-            })
+            callback(customer)
         }
     })
 }
@@ -89,10 +59,52 @@ function _subscribeCustomerToPlan(userStripeId, callback) {
     });
 }
 
+function _unsubscribeFromPremium(userId, callback) {
+    User.getUserById(userId, function (user) {
+        if (user){
+            stripe.customers.retrieve(
+                user.stripeCustomerId,
+                function(err, customer) {
+                    // asynchronously called
+                    if (err){
+                        console.log("Error in retrieving customer from Stripe.")
+                        callback(false)
+                    } else {
+                        if (customer.subscriptions.data.id != null) {
+                            stripe.subscriptions.del(customer.subscriptions.data.id,
+                                { at_period_end: true },
+                                function(err, confirmation) {
+                                    // asynchronously called
+                                    if (err){
+                                        console.log("Error: failure in cancelling subscription for userId: " + userId +
+                                        " customerStripeId: " + user.stripeCustomerId)
+                                        callback(false)
+                                    } else {
+                                        callback(true)
+                                    }
+                                }
+                            )
+                        } else {
+                            console.log("Customer does not have a Premium Plan.")
+                            callback(false)
+                        }
+
+                    }
+                }
+            )
+        }
+    })
+
+
+
+
+}
+
 module.exports = {
     createStripeCustomer: _createStripeCustomer,
     subscribeCustomerToPlan: _subscribeCustomerToPlan,
-    deleteStripeCustomer: _deleteStripeCustomer
+    deleteStripeCustomer: _deleteStripeCustomer,
+    unsubscribeFromPremium: _unsubscribeFromPremium
 };
 
 

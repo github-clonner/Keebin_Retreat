@@ -6,6 +6,7 @@ var db = require('./../HouseKeeping/DataBaseCreation.js');
 var sequelize = db.connect();
 var User = db.User();
 var bcrypt = require('bcryptjs');
+var stripeCustomer = require('./../Entities/stripeCustomer')
 
 var Sequelize = require('sequelize'); // Requires
 var firstName = "";
@@ -32,7 +33,6 @@ function _newUser(firstName, lastName, email, role, birthday, sex, password)
 function _createUser(firstName, lastName, email, role, birthday, sex, password, callback) // this creates a user
 {
     console.log("i user-user og email " + email);
-    var userCreated = false;
 
     User.find({where: {Email: email}}).then(function (data)
     { // we have run the callback inside the .then
@@ -40,7 +40,7 @@ function _createUser(firstName, lastName, email, role, birthday, sex, password, 
         if (data !== null)
         {
             console.log("User findes allerede");
-            callback(userCreated);
+            callback(false);
         } else
         {
             console.log("User findes IKKE");
@@ -62,15 +62,15 @@ function _createUser(firstName, lastName, email, role, birthday, sex, password, 
             {
                 console.log("her er res: " + result);
                 console.log("Transaction has been committed - user has been saved to the DB");
-                userCreated = true;
-                callback(userCreated);
+                console.log("Her er userEmail: " + result.email)
+                callback(result)
 
                 // Transaction has been committed
                 // result is whatever the result of the promise chain returned to the transaction callback
             }).catch(function (err)
             {
                 console.log("ERR: " + err);
-                callback(userCreated);
+                callback(false);
                 // Transaction has been rolled back
                 // err is whatever rejected the promise chain returned to the transaction callback
             })
@@ -431,7 +431,7 @@ function _putGiveUserStripeCustomerID(userEmail, customerId, callback)
                 } else
                 {
                     console.log(err);
-                    console.log("could not find: " + editUser.email);
+                    console.log("could not find: " + userEmail);
                     callback(false)
                 }
         }

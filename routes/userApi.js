@@ -417,9 +417,9 @@ router.post("/user/logout", function (req, res)
 
 
 router.post("/createPremiumSubscription", function (req, res) {
-    //If user does not have Stripe Customer ID it will be created first. 
-    facade.createStripeCustomer(req.decoded.data.email, function (data) {
-        if (data) {
+    //If user does not have Stripe Customer ID it will be created first.
+    // facade.createStripeCustomer(req.decoded.data.email, function (data) {
+    //     if (data) {
             facade.subscribeStripeCustomerToPremium(data.customerId, function (data) {
                 if(data){
                     facade.createNewPremiumSubscription(req.decoded.data.sub, function (status) {
@@ -437,10 +437,10 @@ router.post("/createPremiumSubscription", function (req, res) {
                     res.status(500).send();
                 }
             })
-        } else {
-            res.status(500).send();
-        }
-    })
+        // } else {
+        //     res.status(500).send();
+        // }
+    // })
 });
 
 router.delete("/deletePremiumSubscription", function (req, res)
