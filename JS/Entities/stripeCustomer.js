@@ -41,6 +41,7 @@ function _deleteStripeCustomer(customerId, callback) {
 }
 
 function _subscribeCustomerToPlan(userStripeId, callback) {
+    console.log("subscribeCustomerToPlan is running with userStripeId: " + userStripeId)
     // Set your secret key: remember to change this to your live secret key in production
 // See your keys here: https://dashboard.stripe.com/account/apikeys
     var stripe = require("stripe")("sk_test_owha8O0rJ9JkxvSyHQpFgUjP");
@@ -51,9 +52,15 @@ function _subscribeCustomerToPlan(userStripeId, callback) {
     }, function(err, subscription) {
         // asynchronously called
         if(err){
-            console.log("error i _subscribeCustomerToPlan: " + err)
-            callback(false)
+            if (err == "Error: This customer has no attached payment source" ){
+                callback("noCard")
+            } else  {
+                console.log("error i _subscribeCustomerToPlan: " + err)
+                callback(false)
+            }
+
         } else {
+            console.log("der er ikke error")
             callback(true)
         }
     });

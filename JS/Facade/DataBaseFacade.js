@@ -878,10 +878,10 @@ function _createStripeCustomer(userEmail, callback)
 
 function _subscribeStripeCustomerToPremium(customerId, callback) {
     stripeCustomer.subscribeCustomerToPlan(customerId, function (data) {
-        if(data){
+        if(false){
+            console.log("Could not subscribe customer to Premium Plan")
             callback(data)
         } else {
-            console.log("Could not subscribe customer to Premium Plan")
             callback(data)
 
         }

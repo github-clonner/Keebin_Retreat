@@ -420,23 +420,38 @@ router.post("/createPremiumSubscription", function (req, res) {
     //If user does not have Stripe Customer ID it will be created first.
     // facade.createStripeCustomer(req.decoded.data.email, function (data) {
     //     if (data) {
-            facade.subscribeStripeCustomerToPremium(data.customerId, function (data) {
-                if(data){
-                    facade.createNewPremiumSubscription(req.decoded.data.sub, function (status) {
-                        if (status !== false) {
-                            res.writeHead(200, {"accessToken": req.headers.accessToken});
-                            res.status(200).send();
-                        }
-                        else {
-                            console.log("ERROR in DB: Customer with id: "+ req.decoded.data.sub +
-                                " subscribed to Premium Stripe Plan but could not be set to Premium in DB.")
-                            res.status(500).send();
-                        }
-                    })
-                } else {
-                    res.status(500).send();
+    User.getUserById(req.decoded.data.sub, function (user) {
+        if (user){
+            facade.subscribeStripeCustomerToPremium(user.stripeCustomerId, function (data) {
+                console.log("fra userApi : " + data)
+                if (data == "noCard") {
+                    if (data == "noCard") {
+                        //statusCode for no payment source.
+                        res.status(757).send()
+                    } else if (data) {
+                        facade.createNewPremiumSubscription(req.decoded.data.sub, function (status) {
+                            if (status !== false) {
+                                res.writeHead(200, {"accessToken": req.headers.accessToken});
+                                res.status(200).send();
+                            }
+                            else {
+                                console.log("ERROR in DB: Customer with id: " + req.decoded.data.sub +
+                                    " subscribed to Premium Stripe Plan but could not be set to Premium in DB.")
+                                res.status(500).send();
+                            }
+                        })
+                    } else {
+                        res.status(500).send()
+                    }
                 }
             })
+        } else {
+            console.log("could not find user with id: " + req.decoded.data.sub)
+            res.status(500).send();
+
+        }
+    })
+
         // } else {
         //     res.status(500).send();
         // }
