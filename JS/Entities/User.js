@@ -6,6 +6,7 @@ var db = require('./../HouseKeeping/DataBaseCreation.js');
 var sequelize = db.connect();
 var User = db.User();
 var bcrypt = require('bcryptjs');
+var stripeCustomer = require('./../Entities/stripeCustomer')
 
 var Sequelize = require('sequelize'); // Requires
 var firstName = "";
@@ -32,7 +33,6 @@ function _newUser(firstName, lastName, email, role, birthday, sex, password)
 function _createUser(firstName, lastName, email, role, birthday, sex, password, callback) // this creates a user
 {
     console.log("i user-user og email " + email);
-    var userCreated = false;
 
     User.find({where: {Email: email}}).then(function (data)
     { // we have run the callback inside the .then
@@ -40,7 +40,7 @@ function _createUser(firstName, lastName, email, role, birthday, sex, password, 
         if (data !== null)
         {
             console.log("User findes allerede");
-            callback(userCreated);
+            callback(false);
         } else
         {
             console.log("User findes IKKE");
@@ -62,15 +62,15 @@ function _createUser(firstName, lastName, email, role, birthday, sex, password, 
             {
                 console.log("her er res: " + result);
                 console.log("Transaction has been committed - user has been saved to the DB");
-                userCreated = true;
-                callback(userCreated);
+                console.log("Her er userEmail: " + result.email)
+                callback(result)
 
                 // Transaction has been committed
                 // result is whatever the result of the promise chain returned to the transaction callback
             }).catch(function (err)
             {
                 console.log("ERR: " + err);
-                callback(userCreated);
+                callback(false);
                 // Transaction has been rolled back
                 // err is whatever rejected the promise chain returned to the transaction callback
             })
@@ -399,6 +399,46 @@ function _logoutUser(userEmail, callback)
 }; // this logs out user by deleting refreshToken.
 
 
+function _putGiveUserStripeCustomerID(userEmail, customerId, callback)
+{
+    console.log("_putGiveUserStripeCustomerID is running. Finding: " + userEmail);
+    User.find({where: {Email: userEmail}}).then(function (data, err)
+        {
+                 if (data !== null)
+                {
+                    console.log("user found - ready to give StripeCustomerId");
+                    return sequelize.transaction(function (t)
+                    {
+                        // chain all your queries here. make sure you return them.
+                        return data.updateAttributes({
+                            stripeCustomerId: customerId
+                        }, {transaction: t})
+
+                    }).then(function (result)
+                    {
+                        console.log("Transaction has been committed - user with email: " + result.email + ", has been updated and saved to the DB");
+                        callback(true);
+
+                        // Transaction has been committed
+                        // result is whatever the result of the promise chain returned to the transaction callback
+                    }).catch(function (err)
+                    {
+                        console.log("error i _putGiveUserStripeCustomerID: " + err);
+                        callback(false);
+                        // Transaction has been rolled back
+                        // err is whatever rejected the promise chain returned to the transaction callback
+                    });
+                } else
+                {
+                    console.log(err);
+                    console.log("could not find: " + userEmail);
+                    callback(false)
+                }
+        }
+    )
+};
+
+
 module.exports = {
     createNewUserObject: _newUser,
     getUserById: _getUserById,
@@ -408,7 +448,8 @@ module.exports = {
     getUser: _getUser,
     getAllUsers: _getAllUsers,
     getUserByRefreshToken: _getUserByRefreshToken,
-    logoutUser: _logoutUser
+    logoutUser: _logoutUser,
+    putGiveUserStripeCustomerID: _putGiveUserStripeCustomerID
 }; // Export Module
 
 

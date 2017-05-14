@@ -17,7 +17,7 @@ var validate = require('./../validation/Validator');
 var klippekort = require('./../Entities/PrePaidCoffeeCard.js')
 var premium = require('./../Entities/Premium')
 var dbVersion = require('./../HouseKeeping/DatabaseVersion.js')
-
+var stripeCustomer = require('./../Entities/stripeCustomer')
 
 var sequelize = db.connect(); // Establishing connection to the MySQL database schema called keebin
 
@@ -298,7 +298,23 @@ function _createUser(FirstName, LastName, Email, Role, Birthday, Sex, password, 
         {
             User.createUser(FirstName, LastName, Email, Role, Birthday, Sex, password, function (data2)
             {
-                callback(data2)
+                if (data2){
+                    stripeCustomer.createStripeCustomer(data2.email, function (customer) {
+                        if (customer){
+                            User.putGiveUserStripeCustomerID(customer.email, customer.id, function (data3) {
+                                if (data3){
+                                    callback(true)
+                                }
+                            })
+                        } else {
+                            console.log("something went wrong with createStripeCustomer, but user has been created.")
+                            callback(true)
+                        }
+                    })
+
+                } else {
+                    callback(false)
+                }
             })
         } else
         {
@@ -765,7 +781,11 @@ function _deletePremiumSubscription(userId, callback)
         {
             premium.deletePremiumSubscription(userId, function (data)
             {
-                callback(data)
+                if (data){
+                    stripeCustomer.unsubscribeFromPremium(userId, function (data) {
+                        callback(data)
+                    })
+                }
             })
         } else
         {
@@ -842,6 +862,48 @@ function _getDatabaseVersion(callback)
     })
 }
 
+function _createStripeCustomer(userEmail, callback)
+{
+    //create Stripe customer
+    stripeCustomer.createStripeCustomer(userEmail, function (createdCustomer) {
+        if(createdCustomer) {
+            //add Stripe Customer ID to User.stripeCustomerId
+            callback(createdCustomer)
+        } else {
+            console.log("fejl i createStripeCustomer")
+            callback(false)
+        }
+    })
+}
+
+function _subscribeStripeCustomerToPremium(customerId, callback) {
+    stripeCustomer.subscribeCustomerToPlan(customerId, function (data) {
+        if(false){
+            console.log("Could not subscribe customer to Premium Plan")
+            callback(data)
+        } else {
+            callback(data)
+
+        }
+    })
+}
+
+function _addACardToCustomer(userEmail, token, callback) {
+    User.getUser(userEmail, function (user) {
+        if (user){
+            stripeCustomer.addCardToCustomer(user.stripeCustomerId, token, function (data2) {
+                if(data2){
+                    callback(true)
+                } else {
+                    callback(false)
+                }
+            })
+        } else {
+            callback(false)
+        }
+    })
+}
+
 
 module.exports = {
     createUser: _createUser,
@@ -893,5 +955,8 @@ module.exports = {
     getPremiumSubscription: _getPremiumSubscription,
     getAllPremiumSubscriptions: _getAllPremiumSubscriptions,
     putLoyaltyCardRedeem: _putLoyaltyCardRedeem,
-    getDatabaseVersion: _getDatabaseVersion
+    getDatabaseVersion: _getDatabaseVersion,
+    createStripeCustomer: _createStripeCustomer,
+    subscribeStripeCustomerToPremium: _subscribeStripeCustomerToPremium,
+    addACardToCustomer: _addACardToCustomer
 }; // Export Module

@@ -415,21 +415,47 @@ router.post("/user/logout", function (req, res)
 
 //Steffen userLogin, userAuth og userLogout slut
 
-router.post("/createPremiumSubscription", function (req, res)
-{
-    facade.createNewPremiumSubscription(req.decoded.data.sub, function (status)
-        {
-            if (status !== false)
-            {
-                res.writeHead(200, {"accessToken": req.headers.accessToken});
-                res.status(200).send();
-            }
-            else
-            {
-                res.status(500).send();
-            }
+
+router.post("/createPremiumSubscription", function (req, res) {
+    //If user does not have Stripe Customer ID it will be created first.
+    // facade.createStripeCustomer(req.decoded.data.email, function (data) {
+    //     if (data) {
+    User.getUserById(req.decoded.data.sub, function (user) {
+        if (user){
+            facade.subscribeStripeCustomerToPremium(user.stripeCustomerId, function (data) {
+                console.log("fra userApi : " + data)
+                if (data == "noCard") {
+                    if (data == "noCard") {
+                        //statusCode for no payment source.
+                        res.status(757).send()
+                    } else if (data) {
+                        facade.createNewPremiumSubscription(req.decoded.data.sub, function (status) {
+                            if (status !== false) {
+                                res.writeHead(200, {"accessToken": req.headers.accessToken});
+                                res.status(200).send();
+                            }
+                            else {
+                                console.log("ERROR in DB: Customer with id: " + req.decoded.data.sub +
+                                    " subscribed to Premium Stripe Plan but could not be set to Premium in DB.")
+                                res.status(500).send();
+                            }
+                        })
+                    } else {
+                        res.status(500).send()
+                    }
+                }
+            })
+        } else {
+            console.log("could not find user with id: " + req.decoded.data.sub)
+            res.status(500).send();
+
         }
-    );
+    })
+
+        // } else {
+        //     res.status(500).send();
+        // }
+    // })
 });
 
 router.delete("/deletePremiumSubscription", function (req, res)
@@ -542,6 +568,25 @@ router.get("/getDBVersion", function (req, res)
         }
     )
 });
+
+router.post("/addCardToUser", function (req, res)
+{
+    facade.addACardToCustomer(req.decoded.data.email, req.body.token, function (data) {
+        if (data){
+            res.writeHead(200, {"accessToken": req.headers.accessToken});
+            res.write(JSON.stringify(status));
+            res.status(200).send();
+        }
+        else
+        {
+            res.status(500).send();
+        }
+    })
+
+
+});
+
+
 
 
 module.exports = router;
