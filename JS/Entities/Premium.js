@@ -41,7 +41,6 @@ function _createPremiumSubscription(userId, newPremiumCallback) {
                 }, {transaction: t})
 
             }).then(function (result) {
-
                 newPremiumCallback(result);
             }).catch(function (err) {
                 console.log(err);
@@ -56,7 +55,7 @@ function _createPremiumSubscription(userId, newPremiumCallback) {
         premium.find({where: {userId: userId}}).then(function (data) {
             var Found;
             if (data !== null) {
-                console.log("User found -  " + data.userId)
+                console.log("User already has premium -  " + data.userId)
                 Found = true;
             } else {
                 Found = false;
