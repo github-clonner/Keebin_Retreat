@@ -6,7 +6,7 @@ var db = require('./../HouseKeeping/DataBaseCreation.js');
 var sequelize = db.connect();
 var User = db.User();
 var bcrypt = require('bcryptjs');
-var stripeCustomer = require('./../Entities/stripeCustomer')
+var stripeCustomer = require('./stripeCustomer')
 
 var Sequelize = require('sequelize'); // Requires
 var firstName = "";

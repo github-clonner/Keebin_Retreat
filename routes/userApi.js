@@ -423,8 +423,7 @@ router.post("/createPremiumSubscription", function (req, res) {
     User.getUserById(req.decoded.data.sub, function (user) {
         if (user){
             facade.subscribeStripeCustomerToPremium(user.stripeCustomerId, function (data) {
-                console.log("fra userApi : " + data)
-                if (data == "noCard") {
+                if (data) {
                     if (data == "noCard") {
                         //statusCode for no payment source.
                         res.status(757).send()
@@ -443,6 +442,8 @@ router.post("/createPremiumSubscription", function (req, res) {
                     } else {
                         res.status(500).send()
                     }
+                } else {
+                    res.status(500).send()
                 }
             })
         } else {
@@ -460,20 +461,32 @@ router.post("/createPremiumSubscription", function (req, res) {
 
 router.delete("/deletePremiumSubscription", function (req, res)
 {
-    facade.deletePremiumSubscription(req.decoded.data.sub, function (status)
-        {
-            if (status !== false)
-            {
-                res.writeHead(200, {"accessToken": req.headers.accessToken});
-                res.status(200).send();
-            }
-            else
-            {
-                res.status(500).send();
-            }
+    User.getUserById(req.decoded.data.sub, function (user) {
+        if (user){
+            facade.unsubscribeStripeCustomerFromPremium(user, function (data) {
+                if(data){
+                    facade.deletePremiumSubscription(req.decoded.data.sub, function (status)
+                        {
+                            if (status !== false)
+                            {
+                                res.writeHead(200, {"accessToken": req.headers.accessToken});
+                                res.status(200).send();
+                            }
+                            else
+                            {
+                                res.status(500).send();
+                            }
+                        }
+                    )
+                } else {
+                    res.status(500).send();
+                }
+            })
+        }else {
+            res.status(500).send();
         }
-    );
-});
+    })
+})
 
 router.get("/getPremiumSubscription", function (req, res)
 {

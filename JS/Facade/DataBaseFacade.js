@@ -764,6 +764,7 @@ function _createNewPremiumSubscription(userId, callback)
         {
             premium.createPremiumSubscription(userId, function (data)
             {
+                console.log("it works: "  + data)
                 callback(data)
             })
         } else
@@ -781,11 +782,7 @@ function _deletePremiumSubscription(userId, callback)
         {
             premium.deletePremiumSubscription(userId, function (data)
             {
-                if (data){
-                    stripeCustomer.unsubscribeFromPremium(userId, function (data) {
-                        callback(data)
-                    })
-                }
+               callback(data)
             })
         } else
         {
@@ -888,6 +885,18 @@ function _subscribeStripeCustomerToPremium(customerId, callback) {
     })
 }
 
+function _unsubscribeStripeCustomerFromPremium(user, callback) {
+    stripeCustomer.unsubscribeFromPremium(user, function (data) {
+        if(data){
+            callback(data)
+
+        } else {
+            callback(data)
+
+        }
+    })
+}
+
 function _addACardToCustomer(userEmail, token, callback) {
     User.getUser(userEmail, function (user) {
         if (user){
@@ -958,5 +967,6 @@ module.exports = {
     getDatabaseVersion: _getDatabaseVersion,
     createStripeCustomer: _createStripeCustomer,
     subscribeStripeCustomerToPremium: _subscribeStripeCustomerToPremium,
+    unsubscribeStripeCustomerFromPremium: _unsubscribeStripeCustomerFromPremium,
     addACardToCustomer: _addACardToCustomer
 }; // Export Module
