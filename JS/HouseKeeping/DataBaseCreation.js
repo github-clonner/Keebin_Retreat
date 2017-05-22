@@ -119,20 +119,24 @@ var premiumSubscription = sequelize.define('premiumSubscription', {
 
 
 
-var coffeeKind = sequelize.define('coffeeKind', {
+var menuItem = sequelize.define('menuItem', {
     price: {
         type: Sequelize.DOUBLE,
         Validate: {notNull: true},
     },
-    coffeeKindName: {
+    name: {
         type: Sequelize.STRING,
         Validate: {notNull: true},
+    },
+    kind: {
+        type: Sequelize.STRING,
+        Validate: {notNull:true}
     }
 }, {
     freezeTableName: true, // Model tableName will be the same as the model name
     timestamps: false // fjerner timestamps med false denne option skal stå på tabellen
 
-}); // coffeeKind table setup
+}); // menuItem table setup
 
 var order = sequelize.define('order', {
     platform: {
@@ -186,10 +190,18 @@ var coffeeShopUsers = sequelize.define('coffeeShopUsers', {
 }); // coffeeShopUsers table setup
 
 var orderItem = sequelize.define('orderItem', {
-    quantity: {
-        type: Sequelize.INTEGER, // here we decide parameters for this field in the table
+    id: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        allowNull: false,
+        autoIncrement: true,
+        unique: true
+    },
+    isPremiumUsed: {
+        type: Sequelize.BOOLEAN, //
         Validate: {notNull: true}
     }
+
 }, {
     freezeTableName: true, // Model tableName will be the same as the model name
     timestamps: false // fjerner timestamps med false denne option skal stå på tabellen
@@ -258,8 +270,11 @@ loyaltyCards.belongsTo(coffeeBrand, {foreignKey: 'brandName'});
 
 premiumSubscription.belongsTo(user);
 
-coffeeShop.hasMany(coffeeKind);
-coffeeKind.belongsTo(coffeeShop);
+coffeeShop.hasMany(menuItem);
+menuItem.belongsTo(coffeeShop);
+
+PrePaidCoffeeCard.hasMany(orderItem, {foreignKey:'prepaidCardId'});
+orderItem.belongsTo(PrePaidCoffeeCard, {foreignKey:'prepaidCardId'});
 
 coffeeShopUsers.belongsTo(user);
 coffeeShop.hasMany(coffeeShopUsers);
@@ -275,15 +290,24 @@ user.hasMany(order);
 coffeeBrand.hasMany(coffeeShop, {foreignKey: "brandName"});
 coffeeShop.belongsTo(coffeeBrand, {foreignKey: "brandName"});
 
+// order.hasMany(menuItem,{through: orderItem,foreignKey: 'orderId'})
+// menuItem.hasMany(order,{through: orderItem,foreignKey: 'menuitemId'})
+// PrePaidCard.hasMany(orderItem)
 
-order.belongsToMany(coffeeKind, {through: 'orderItem', foreignKey: 'Order_ID'});
-coffeeKind.belongsToMany(order, {through: 'orderItem', foreignKey: 'CoffeeKind_ID'}); // Working with  // associations
+orderItem.belongsTo(order,{foreignKey: 'orderId'})
+order.hasMany(orderItem, {foreignKey: 'orderId'});
 
+orderItem.belongsTo(menuItem,{ foreignKey: 'menuItemId'})
+menuItem.hasMany(orderItem, { foreignKey: 'menuItemId'}); // Working with  // associations
+
+orderItem.belongsTo(PrePaidCoffeeCard,{foreignKey: 'prepaidCardId'})
+PrePaidCoffeeCard.hasMany(orderItem, {foreignKey: 'prepaidCardId'})
 
 PrePaidCoffeeCard.belongsTo(coffeeBrand)
 PrePaidCard.belongsTo(user);
 PrePaidCoffeeCard.hasMany(PrePaidCard);
 PrePaidCard.belongsTo(PrePaidCoffeeCard);
+
 
 coffeeBrand.sync();
 
@@ -293,7 +317,7 @@ premiumSubscription.sync();
 user.sync(); // executes the command from above and inserts a new table into the database
 
 loyaltyCards.sync();
-coffeeKind.sync();
+menuItem.sync();
 order.sync();
 coffeeShop.sync();
 coffeeShopUsers.sync();
@@ -323,7 +347,7 @@ function _LoyaltyCards() {
 }
 
 function _CoffeeKind() {
-    return coffeeKind;
+    return menuItem;
 }
 
 function _Order() {

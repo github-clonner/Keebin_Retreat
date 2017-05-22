@@ -7,16 +7,136 @@ var db = require('./../HouseKeeping/DataBaseCreation.js');
 var sequelize = db.connect();
 var Order = db.Order();
 var facade = require('./User.js');
+var prepaidCard = require('./PrePaidCoffeeCard')
+var premium = require('./Premium')
+var orderItem = require('./OrderItem')
 
 var platform;
 
-function _newOrder(coffeeShopId, platform) {
-    this.coffeeShopId = coffeeShopId;
-    this.platform = platform;
+function _makeList(orderItemList,callback){
+    var returnList = [];
+    var itemsInList = 0
+    returnList.p
+
+    orderItemList.forEach(function(inst){
+        console.log("her er inst : " + inst.prepaidCardId)
+        itemsInList++
+        if(inst.prepaidCardId!==null) {
+            console.log("her er inst.ID : " + returnList[inst.prepaidCardId])
+            if(returnList[inst.prepaidCardId] === undefined){
+                returnList[inst.prepaidCardId] = 1
+            }else {
+                returnList[inst.prepaidCardId] += 1
+            }
+        }
+        if(itemsInList===orderItemList.length){
+            callback (returnList)
+        }
+    })
 
 }
+function _goThroughOrderlistForAmountsOfUsedPrepaid(preparidCardList,orderItemList,callback){
+var goingThroughList = 0
+    _makeList(orderItemList,function(resultList){
+        preparidCardList.forEach(function(item){
+            goingThroughList++
+            if(resultList[item.id]>item.usesleft) {
+                resultList = false
+                callback(false)
+            }
+            if(goingThroughList===preparidCardList.length){
+                callback(resultList)
+            }
+        })
 
-function _createOrder(currentUserId, coffeeShopId, platform, callback) // This creates a new order - belonging to a user through the userId and a coffeeShop through CoffeeShopId
+    })
+
+
+}
+function _checkIfMoreThan1PremiumUsed(orderItemList,callback){
+    var premiumUsed = 0;
+
+
+    orderItemList.forEach(function(inst){
+        if(inst.isPremiumUsed === true ){
+            premiumUsed +=1
+        }
+    })
+    callback(premiumUsed)
+}
+
+function _newOrder(userId,coffeeShopId,orderItemList, platform,callback) {
+    prepaidCard.getmycards(userId,function(result){
+        if(result !==false){
+            _goThroughOrderlistForAmountsOfUsedPrepaid(result,orderItemList,function(amountUsed){
+                if(amountUsed=== false){
+                    callback("Too many cards used")
+                }else{
+                    premium.getPremiumSubscription(userId,function(premiumResult){
+                            _checkIfMoreThan1PremiumUsed(orderItemList,function(amountOfPremiumUsed){
+                                if(amountOfPremiumUsed<=1) {
+                                    if (amountOfPremiumUsed > 0) {
+                                        if (premiumResult.isValidForPremiumCoffee) {
+                                            result.forEach(function(itemData){
+                                                prepaidCard.usecard(itemData.id,amountUsed[itemData.id],userId,function(useData){
+
+                                                    if(useData === false){
+                                                        callback("false")
+                                                    }else{
+                                                        _createOrder(userId,coffeeShopId,orderItemList,platform,function(orderCreatedResult){
+                                                            if(result !==false){
+                                                                callback(orderCreatedResult)
+                                                            }else
+                                                            {
+                                                                callback("false")
+                                                            }
+                                                        })
+                                                    }
+                                                })
+                                            })
+                                        } else {
+                                            callback("false er ikke valid")
+                                        }
+                                    }else{
+                                        result.forEach(function(itemData){
+                                            prepaidCard.usecard(itemData.id,amountUsed[itemData.id],userId,function(useData){
+
+                                                if(useData === false){
+                                                    callback("false")
+                                                }else{
+                                                    _createOrder(userId,coffeeShopId,orderItemList,platform,function(orderCreatedResult){
+                                                        if(result !==false){
+                                                            callback(orderCreatedResult)
+                                                        }else
+                                                        {
+                                                            callback("false")
+                                                        }
+                                                    })
+                                                }
+                                            })
+                                        })
+                                    }
+
+
+
+
+
+                                }else{
+                                    callback("false for for mange used")
+                                }
+                            })
+
+
+                    })
+                }
+            })
+        }else {
+            callback("ingen kort")
+        }
+    })
+}
+
+function _createOrder(currentUserId, coffeeShopId,orderItemList, platform, callback) // This creates a new order - belonging to a user through the userId and a coffeeShop through CoffeeShopId
 {
     var orderCreated = false;
     console.log("_createOrder is running.")
@@ -33,10 +153,33 @@ function _createOrder(currentUserId, coffeeShopId, platform, callback) // This c
     }).then(function (result) {
         console.log("Transaction has been committed - Order has been saved to the DB - to user with ID: " + currentUserId);
         // orderCreated = true;
-        callback(result);
+        console.log("her er user " + currentUserId)
+        premium.putPremiumSubscriptionSetToCoffeeNotReady(currentUserId,function(data){
+        if(data !== false) {
+            var itemsProcessed = 0;
+            orderItemList.forEach(function (item) {
+                var tempItem = item
+                orderItem.createOrderItem(tempItem.isPremiumUsed, tempItem.prepaidCardId,
+                    result.id, tempItem.menuItemId, function (data) {
+                    itemsProcessed++
+                        if(itemsProcessed === orderItemList.length){
+                        callback(result)
+                        }
+                        if (data === false) {
+                            callback("false")
+                        }else {
+                            result.itemsMade +=1
+                        }
+                    })
+            })
 
-        // Transaction has been committed
-        // result is whatever the result of the promise chain returned to the transaction callback
+        }else{
+            callback("false noob")
+        }
+            // Transaction has been committed
+            // result is whatever the result of the promise chain returned to the transaction callback
+
+        })
     }).catch(function (err) {
         console.log(err);
         callback(orderCreated);

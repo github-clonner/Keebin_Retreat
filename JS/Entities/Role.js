@@ -6,7 +6,6 @@
 var db = require('./../HouseKeeping/DataBaseCreation.js');
 var conn = db.connect();
 var Role = db.Role();
-
 function _createRole(RoleName, callback) {
 
 

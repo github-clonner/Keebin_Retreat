@@ -211,7 +211,7 @@ var db = require("../Facade/DataBaseFacade");
 // var k;
 // db.createOrderItem(testOrderItem, function (data) {
 //     k = data;
-//     console.log("OrderItem created - " + k);
+//     console.log("orderItem created - " + k);
 // });
 
 

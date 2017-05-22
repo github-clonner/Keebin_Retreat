@@ -7,7 +7,7 @@ var db = require('./../HouseKeeping/DataBaseCreation.js');
 var Sequelize = require('sequelize'); // Requires
 var Role = require('./../Entities/Role.js'); // Requires
 var User = require('./../Entities/User.js'); // Requires
-var OrderItem = require('./../Entities/OrderItem.js'); // Requires
+var orderItem = require('./../Entities/OrderItem.js'); // Requires
 var LoyaltyCards = require('./../Entities/LoyaltyCard.js'); // Requires
 var CoffeeBrand = require('./../Entities/CoffeeBrand.js'); // Requires
 var Order = require('./../Entities/Order.js'); // Requires
@@ -456,20 +456,29 @@ function _putCoffeeShop(coffeeShopEmail, email, brandId, address, phone, coffeeC
 }; // this edits CoffeeShop based on email.
 
 
-function _createOrder(currentUser, coffeeShopId, platform, callback) // This creates a new order - belonging to a user through the userId and a coffeeShop through CoffeeShopId
-{
+function _newOrder(currentUser, coffeeShopId,orderItemList, platform, callback) // This creates a new order - belonging to a user through the userId and a coffeeShop through CoffeeShopId
+{   console.log("her er de forskellige id's fra newOrder, User: " + currentUser + "  shopID: "
+    + coffeeShopId + "  OrderItemList: " + orderItemList[0].isPremiumUsed + "  " + orderItemList[0].prepaidCardId)
     validate.valOrder(currentUser, coffeeShopId, platform, function (data)
     {
         if (data)
         {
-            Order.createOrder(currentUser, coffeeShopId, platform, function (data2)
+            Order.newOrder(currentUser, coffeeShopId,orderItemList, platform, function (data2)
             {
                 callback(data2)
             })
         } else callback(false)
     })
 }
+function _getOrderItemsByOrderID(orderId,callback){
+    orderItem.getOrderitemsByOrder(orderId,function(result){
+        if(result !== false){
+            callback(result)
+        }
+        callback(false)
+    })
 
+}
 function _deleteOrder(orderId, callback)
 {
     validate.valID(orderId, function (data)
@@ -515,7 +524,7 @@ function _createOrderItem(orderId, coffeeKindId, quantity, callback) // This cre
     {
         if (data)
         {
-            OrderItem.createOrderItem(orderId, coffeeKindId, quantity, function (data2)
+            orderItem.createOrderItem(orderId, coffeeKindId, quantity, function (data2)
             {
                 callback(data2)
             })
@@ -851,7 +860,7 @@ module.exports = {
     getUser: _getUser,
     createCoffeeShop: _createCoffeeShop,
     deleteCoffeeShop: _deleteCoffeeShop,
-    createOrder: _createOrder,
+    newOrder: _newOrder,
     createOrderItem: _createOrderItem,
     deleteOrder: _deleteOrder,
     getOrder: _getOrder,
@@ -893,5 +902,6 @@ module.exports = {
     getPremiumSubscription: _getPremiumSubscription,
     getAllPremiumSubscriptions: _getAllPremiumSubscriptions,
     putLoyaltyCardRedeem: _putLoyaltyCardRedeem,
-    getDatabaseVersion: _getDatabaseVersion
+    getDatabaseVersion: _getDatabaseVersion,
+    getOrderItemsByOrderID: _getOrderItemsByOrderID
 }; // Export Module

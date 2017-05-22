@@ -207,7 +207,8 @@ function _newstorecard(price, name, count, brandID, cents, callback)
 }
 
 function _usecard(PrePaidCardID, purchasedamount, userID, callback) {
-
+console.log("Vi er nu inde i usecard, prepaidCardId: " +PrePaidCardID + " purchasedamount: "
++ purchasedamount + " userId: " + userID)
     prePaidCard.find({where: {id: PrePaidCardID, userId: userID}}).then(function (data) {
 
         if (data !== null) {

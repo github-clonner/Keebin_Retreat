@@ -28,16 +28,59 @@ router.delete("/order/:id", function (req, res) {
 });
 
 //New Order -- WORKS..
-router.post("/order/new", function (req, res, next) {
-        console.log("id here! - " + req.body.userId)
-        facade.createOrder(req.body.userId, req.body.coffeeShopId, req.body.platform, function (status) {
-                if (status === true) {
+router.post("/order/newOrder", function (req, res, next) {
+        facade.newOrder(req.body.userId, req.body.coffeeShopId,req.body.orderItemList, req.body.platform, function (status) {
+            var newOrder = status
+            let myJsonObject = JSON.parse(JSON.stringify(status))
+            if (status.id !== undefined)
+            {
+                console.log("vi kommer ned i status.id")
+                facade.getOrderItemsByOrderID(status.id,function(result) {
+                    if (result !== false) {
+                    newOrder.orderItemList = result
                     res.writeHead(200, {"Content-Type": "application/json", "accessToken": req.headers.accessToken});
 
-                    res.status(200).send();
+                    var newObject =
+                        {
+                            id: status.id,
+                            userId: status.userId,
+                            coffeeShopId: status.coffeeShopId,
+                            platform: status.platform,
+                            updatedAt: status.updatedAt,
+                            createdAt: status.createdAt,
+                            orderItemList: result
+
+                        }
+                    res.end(JSON.stringify(newObject));
+
+                }else{
+                        res.status(501).send();
+                    }
+                })
+
                 }
                 else {
-                    res.status(500).send();
+                switch(status){
+                    case "false":
+                        res.status(500).send();
+                        break;
+                    case "Too many cards used":
+                        res.status(502).send()
+                        break;
+                    case "false er ikke valid":
+                        res.status(503).send()
+                        break;
+                    case "false for for mange used":
+                        res.status(504).send()
+                        break;
+                    case "ingen kort":
+                        res.status(404).send()
+                        break;
+                    default:
+                        res.status(500).send()
+
+                }
+
                 }
             }
         );

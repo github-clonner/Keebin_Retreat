@@ -9,7 +9,7 @@ var sequelize = db.connect();
 
 var secretKey = uuid.v4();
 
-// _createSecret(secretKey);
+ //_createSecret(secretKey);
 
 function _createSecret(secretKey) // this creates a secret. ONLY TO BE RUN ONCE
 {
