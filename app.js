@@ -86,26 +86,17 @@ app.post("/appswitchstatus", function (req, res)
     res.send("Jimmy, stram dig an!");
 });
 
-// app.use("/bubble", function(req,res,next)
-// {
-//     res.send("bubbles 4sure!!");
-// });
 
-// skal kommenteres ind igen!
-// app.use(expressWinston.logger({
-//
-//     transports: [
-//         // new winston.transports.Console({
-//         //     json: true,
-//         //     colorize: true
-//         // }),
-//         new (winston.transports.File)({
-//             filename: process.env.OPENSHIFT_LOG_DIR+"serverLog.log",
-//             json: true,
-//             colorize: true
-//         })
-//     ]
-// }));
+app.use(expressWinston.logger({
+
+    transports: [
+        new (winston.transports.File)({
+            filename: process.env.OPENSHIFT_LOG_DIR + "serverLog.log",
+            json: true,
+            colorize: true
+        })
+    ]
+}));
 
 app.use('/login', login);
 
@@ -117,8 +108,6 @@ app.all('/api/*', function (req, res, next)
     var getSecret = Secret.getSecretKey(function (data)
     {
         secretKey = data;
-
-
         //Hvis vi finder secretKey går vi videre.
         if (getSecret !== null)
         {
@@ -208,19 +197,19 @@ app.use('/api/order', order); // order + orderitem --- DONE (testet og alt virke
 app.use('/api/housekeeping', houseKeeping);
 
 // skal kommenteres ind igen!
-// app.use(expressWinston.errorLogger({
-//     transports: [
-//         new winston.transports.Console({
-//             json: true,
-//             colorize: true
-//         }),
-//         new (winston.transports.File)({
-//             filename: process.env.OPENSHIFT_LOG_DIR+"errorLog.log",
-//             json: true,
-//             colorize: true
-//         })
-//     ]
-// }));
+app.use(expressWinston.errorLogger({
+    transports: [
+        new winston.transports.Console({
+            json: true,
+            colorize: true
+        }),
+        new (winston.transports.File)({
+            filename: process.env.OPENSHIFT_LOG_DIR + "errorLog.log",
+            json: true,
+            colorize: true
+        })
+    ]
+}));
 
 
 // catch 404 and forward to error handler

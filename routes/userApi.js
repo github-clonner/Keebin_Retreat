@@ -63,6 +63,7 @@ router.post("/user/new", function (req, res, next)
         {
             var salt = bcrypt.genSaltSync(12);
             var pw = bcrypt.hashSync(req.body.password, salt);
+
             var userToSave =
                 {
                     "firstName": req.body.firstName,
@@ -219,8 +220,8 @@ router.put("/user/:email", function (req, res, next)
 
         if (req.body.password != null && req.body.password != undefined && req.body.password != "")
         {
-            var salt = bcrypt.genSaltSync(10);
-            var pw = bcrypt.hashSync(req.body.password, salt);
+            let salt = bcrypt.genSaltSync(10);
+            let pw = bcrypt.hashSync(req.body.password, salt);
         }
         else
         {
