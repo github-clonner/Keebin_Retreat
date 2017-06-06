@@ -51,7 +51,7 @@ function _subscribeCustomerToPlan(userStripeId, callback) {
                 console.log(err)
                 callback(false)
             } else {
-                if (customer.subscriptions.data[0].canceled_at == null) {
+                if (customer.subscriptions.data === undefined || customer.subscriptions.data[0] === undefined || customer.subscriptions.data[0].canceled_at === null) {
                     var subscription = stripe.subscriptions.create({
                         customer: userStripeId,
                         plan: "premiumPlanRetreat",
