@@ -1,6 +1,6 @@
 ﻿var Sequelize = require('sequelize'); // Requires
 
-var sequelize = new Sequelize('keebin', 'mrlefort', 'kpujrf', {
+var sequelize = new Sequelize('keebindb', 'mrlefort', '1234', {
     host: process.env.OPENSHIFT_MYSQL_DB_HOST,
     port: process.env.OPENSHIFT_MYSQL_DB_PORT,
     dialect: 'mysql'
